@@ -1,9 +1,10 @@
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
   name: producthub-mongo
   namespace: producthub
 spec:
+  serviceName: producthub-mongo
   replicas: 1
   selector:
     matchLabels:
@@ -21,9 +22,15 @@ spec:
           volumeMounts:
             - name: mongo-data
               mountPath: /data/db
-      volumes:
-        - name: mongo-data
-          emptyDir: {}
+  volumeClaimTemplates:
+    - metadata:
+        name: mongo-data
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 5Gi
 ---
 apiVersion: apps/v1
 kind: Deployment

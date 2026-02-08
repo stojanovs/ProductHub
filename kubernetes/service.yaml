@@ -4,6 +4,7 @@ metadata:
   name: producthub-mongo
   namespace: producthub
 spec:
+  clusterIP: None
   selector:
     app: producthub-mongo
   ports:
