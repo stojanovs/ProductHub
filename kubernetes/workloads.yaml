@@ -1,0 +1,75 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: producthub-mongo
+  namespace: producthub
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: producthub-mongo
+  template:
+    metadata:
+      labels:
+        app: producthub-mongo
+    spec:
+      containers:
+        - name: mongo
+          image: mongo:6.0
+          ports:
+            - containerPort: 27017
+          volumeMounts:
+            - name: mongo-data
+              mountPath: /data/db
+      volumes:
+        - name: mongo-data
+          emptyDir: {}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: producthub-backend
+  namespace: producthub
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: producthub-backend
+  template:
+    metadata:
+      labels:
+        app: producthub-backend
+    spec:
+      containers:
+        - name: backend
+          image: producthub-backend:local
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8000
+          envFrom:
+            - configMapRef:
+                name: producthub-config
+            - secretRef:
+                name: producthub-secrets
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: producthub-frontend
+  namespace: producthub
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: producthub-frontend
+  template:
+    metadata:
+      labels:
+        app: producthub-frontend
+    spec:
+      containers:
+        - name: frontend
+          image: producthub-frontend:local
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 80

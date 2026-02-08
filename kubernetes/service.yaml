@@ -1,0 +1,38 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: producthub-mongo
+  namespace: producthub
+spec:
+  selector:
+    app: producthub-mongo
+  ports:
+    - name: mongo
+      port: 27017
+      targetPort: 27017
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: producthub-backend
+  namespace: producthub
+spec:
+  selector:
+    app: producthub-backend
+  ports:
+    - name: http
+      port: 8000
+      targetPort: 8000
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: producthub-frontend
+  namespace: producthub
+spec:
+  selector:
+    app: producthub-frontend
+  ports:
+    - name: http
+      port: 80
+      targetPort: 80
