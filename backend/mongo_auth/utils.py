@@ -27,6 +27,8 @@ db = client[db_name]
 
 usersCol = db['users']
 productsCol = db['products']
+
+def json_handler(x):
     if isinstance(x, ObjectId) or isinstance(x, datetime):
         return str(x)
     else:
