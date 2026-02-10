@@ -17,7 +17,6 @@ def create_unique_object_id():
     return unique_object_id
 
 
-# Check if user is logged in
 def login_status(request):
     token = request.META.get('HTTP_AUTHORIZATION')
     token = token.replace('Bearer ', '')

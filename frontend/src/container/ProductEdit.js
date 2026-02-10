@@ -19,6 +19,8 @@ function ProductEditScreen({ match, history }) {
   const [name, setName] = useState("");
   const [price, setPrice] = useState();
   const [quantity, setQuantity] = useState();
+  const [image, setImage] = useState(null);
+  const [imagePreview, setImagePreview] = useState("");
 
   // dispatch used for action calling
   const dispatch = useDispatch();
@@ -35,8 +37,26 @@ function ProductEditScreen({ match, history }) {
       setName(product?.name);
       setQuantity(product?.quantity);
       setPrice(product?.price);
+      setImagePreview(product?.image || "");
     }
   }, [product]);
+
+  const handleImageChange = (e) => {
+    const file = e.target.files && e.target.files[0];
+    if (!file) {
+      setImage(null);
+      setImagePreview(product?.image || "");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const result = typeof reader.result === "string" ? reader.result : "";
+      setImage(result);
+      setImagePreview(result);
+    };
+    reader.readAsDataURL(file);
+  };
 
   // submit button handler
   const submitHandler = (e) => {
@@ -46,6 +66,7 @@ function ProductEditScreen({ match, history }) {
         name,
         price,
         quantity,
+        image: image || undefined,
       })
     );
     if (success) {
@@ -86,6 +107,24 @@ function ProductEditScreen({ match, history }) {
               value={quantity}
               onChange={(e) => setQuantity(e.target.value)}
             ></Form.Control>
+          </Form.Group>
+
+          <Form.Group controlId="image">
+            <Form.Label>Product Image</Form.Label>
+            <Form.Control
+              type="file"
+              accept="image/*"
+              onChange={handleImageChange}
+            ></Form.Control>
+            {imagePreview && (
+              <div style={{ marginTop: "10px" }}>
+                <img
+                  src={imagePreview}
+                  alt="Preview"
+                  style={{ width: "100px", height: "100px", objectFit: "cover", borderRadius: "6px" }}
+                />
+              </div>
+            )}
           </Form.Group>
 
           <Button type="submit" variant="primary">

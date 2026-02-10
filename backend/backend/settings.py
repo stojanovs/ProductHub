@@ -18,37 +18,25 @@ from dotenv import load_dotenv
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Try to load .env from multiple locations (container /app/.env and local ./backend/.env)
 env_file = BASE_DIR / ".env"
 if not env_file.exists():
-    env_file = BASE_DIR.parent / ".env"  # Try /app/.env if /app/backend/.env doesn't exist
+    env_file = BASE_DIR.parent / ".env"
 
 if env_file.exists():
     load_dotenv(env_file)
 else:
-    # In Docker, env_file directive from docker-compose provides env vars directly
-    # so this is not critical, but useful for local development
     pass
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 
-
-
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
-
-# SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-8lp#nbik+r+fn(+qtwd$7@4^oda7f@3+3o*!tdw5fn_uq03n*='
 
-# SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv("DEBUG", "False") == "True"
 
 
 ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "*").split(",")
 
-
-# Application definition
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -58,12 +46,10 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-    # Apps added
     'mongo_auth',
     'products_app',
     'health_check',
 
-    # Other packages added
     "django_extensions",
     "corsheaders",
     "rest_framework",
@@ -114,7 +100,6 @@ TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [
-            # frontend template directory
             os.path.join(BASE_DIR, 'frontend/build'),
         ],
         'APP_DIRS': True,
@@ -130,9 +115,6 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'backend.wsgi.application'
-
-# Password validation
-# https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -150,9 +132,6 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 
-# Internationalization
-# https://docs.djangoproject.com/en/3.2/topics/i18n/
-
 LANGUAGE_CODE = 'en-us'
 
 TIME_ZONE = 'UTC'
@@ -164,13 +143,7 @@ USE_L10N = True
 USE_TZ = True
 
 
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/3.2/howto/static-files/
-
 STATIC_URL = '/static/'
-
-# Default primary key field type
-# https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 

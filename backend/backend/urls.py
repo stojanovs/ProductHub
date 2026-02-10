@@ -22,7 +22,4 @@ urlpatterns = [
     path('auth/', include('mongo_auth.urls')),
     path('products/', include('products_app.urls')),
     path('health/', include('health_check.urls')),
-    # Frontend is served by the `frontend` nginx service. Do not serve
-    # the React `index.html` from Django to avoid template lookup errors
-    # when the frontend build isn't present in the backend container.
 ]

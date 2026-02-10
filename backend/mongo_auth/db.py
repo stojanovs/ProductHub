@@ -4,7 +4,6 @@ import urllib.parse
 
 MANGO_JWT_SETTINGS = settings.MANGO_JWT_SETTINGS
 
-# Safely read credentials: omit them if empty
 raw_password = MANGO_JWT_SETTINGS.get('db_pass') or ""
 raw_username = MANGO_JWT_SETTINGS.get('db_user') or ""
 password = urllib.parse.quote(raw_password) if raw_password else ""

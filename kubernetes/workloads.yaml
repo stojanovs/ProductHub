@@ -78,5 +78,8 @@ spec:
         - name: frontend
           image: producthub-frontend:local
           imagePullPolicy: IfNotPresent
+          env:
+            - name: BACKEND_HOST
+              value: producthub-backend
           ports:
             - containerPort: 80

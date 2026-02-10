@@ -23,15 +23,12 @@ class HealthCheck(APIView):
         }
         
         try:
-            # Check backend
             health_status["services"]["backend"] = {
                 "status": "healthy",
                 "port": 8000
             }
             
-            # Check MongoDB
             try:
-                # Try to ping MongoDB by doing a simple query
                 usersCol.count_documents({})
                 health_status["services"]["mongodb"] = {
                     "status": "healthy",
@@ -50,7 +47,7 @@ class HealthCheck(APIView):
                 }
                 health_status["status"] = "degraded"
             
-            # Check frontend (we can't directly check from backend, but we can note it)
+
             health_status["services"]["frontend"] = {
                 "status": "unknown",
                 "note": "Check via HTTP request to /"

@@ -23,8 +23,11 @@ const Productform = () => {
   const [quantity, setQuantity] = useState("");
   const [price, setPrice] = useState("");
   const [filters, setFilters] = useState({});
+  const [image, setImage] = useState(null);
+  const [imagePreview, setImagePreview] = useState("");
 
   const columns = [
+    { title: "Image", field: "image" },
     { title: "Name", field: "name" },
     { title: "Quantity", field: "quantity" },
     { title: "Price", field: "price" },
@@ -64,6 +67,7 @@ const Productform = () => {
         name,
         quantity: isNaN(qty) ? 0 : qty,
         price: isNaN(pr) ? 0 : pr,
+        image,
       })
     );
 
@@ -74,8 +78,27 @@ const Productform = () => {
       setName("");
       setQuantity("");
       setPrice("");
+      setImage(null);
+      setImagePreview("");
       dispatch(ProductList(filters));
     });
+  };
+
+  const handleImageChange = (e) => {
+    const file = e.target.files && e.target.files[0];
+    if (!file) {
+      setImage(null);
+      setImagePreview("");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const result = typeof reader.result === "string" ? reader.result : "";
+      setImage(result);
+      setImagePreview(result);
+    };
+    reader.readAsDataURL(file);
   };
 
   const handleFilter = (newFilters) => {
@@ -143,6 +166,35 @@ const Productform = () => {
               inputProps={{ step: "0.01" }}
             />
           </Box>
+          <Box
+            style={{
+              padding: "12px",
+              border: "1px dashed #9e9e9e",
+              borderRadius: "8px",
+              backgroundColor: "#fafafa",
+              marginBottom: "16px",
+            }}
+          >
+            <Typography variant="subtitle2" style={{ marginBottom: "6px" }}>
+              Upload Product Image
+            </Typography>
+            <Typography variant="caption" display="block" style={{ marginBottom: "8px" }}>
+              Choose an image to show in the product list.
+            </Typography>
+            <Button component="label" variant="outlined" size="small">
+              Choose Image
+              <input type="file" accept="image/*" hidden onChange={handleImageChange} />
+            </Button>
+            {imagePreview && (
+              <Box style={{ marginTop: "10px" }}>
+                <img
+                  src={imagePreview}
+                  alt="Preview"
+                  style={{ width: "120px", height: "120px", objectFit: "cover", borderRadius: "6px" }}
+                />
+              </Box>
+            )}
+          </Box>
           <Button type="submit" variant="contained" color="primary">
             Add Product
           </Button>
@@ -174,6 +226,19 @@ const Productform = () => {
                     try {
                       return (
                         <tr key={prod._id}>
+                          <td>
+                            {prod.image ? (
+                              <img
+                                src={prod.image}
+                                alt={prod.name}
+                                style={{ width: "48px", height: "48px", objectFit: "cover", borderRadius: "6px" }}
+                              />
+                            ) : (
+                              <Typography variant="caption" color="textSecondary">
+                                No image
+                              </Typography>
+                            )}
+                          </td>
                           <td>{prod.name}</td>
                           <td>{prod.quantity}</td>
                           <td>${formatPrice(prod.price)}</td>

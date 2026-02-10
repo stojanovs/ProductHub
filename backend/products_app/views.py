@@ -47,20 +47,16 @@ class List_and_Add_Products(APIView):
         """
 
         try:
-            # ++++++++++++++ Get pagination parameters ++++++++++++++
             page = int(request.query_params.get('page', 1))
             limit = int(request.query_params.get('limit', 10))
             skip = (page - 1) * limit
             
-            # ++++++++++++++ Build filter ++++++++++++++
             filter_query = {}
             
-            # Filter by name (case-insensitive partial match)
             name_filter = request.query_params.get('name')
             if name_filter:
                 filter_query['name'] = {'$regex': name_filter, '$options': 'i'}
             
-            # Filter by price range
             min_price = request.query_params.get('minPrice')
             max_price = request.query_params.get('maxPrice')
             if min_price or max_price:
@@ -72,10 +68,8 @@ class List_and_Add_Products(APIView):
                         price_filter['$lte'] = float(max_price)
                     filter_query['price'] = price_filter
                 except (ValueError, TypeError):
-                    # Invalid price format, ignore the filter
                     pass
             
-            # ++++++++++++++ Find products with filter and pagination ++++++++++++++
             total_count = productsCol.count_documents(filter_query)
             products = productsCol.find(filter_query).skip(skip).limit(limit)
             
@@ -89,7 +83,6 @@ class List_and_Add_Products(APIView):
                 }
             }, status=status.HTTP_200_OK)
 
-        # ++++++++++++++ except conditions for error handling ++++++++++++++
         except Exception as e:
             print('Exception in listing products: ', e)
             return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR, data={"data": {"error_msg": str(e)}})
@@ -99,24 +92,21 @@ class List_and_Add_Products(APIView):
         Add Product View
         """
         try:
-            # ++++++++++++++ Get data from user ++++++++++++++
             data = request.data
 
-            # ++++++++++++++ Get fields from user to be added in db ++++++++++++++
             productAdd = {
                 "name": data['name'],
                 "quantity": data['quantity'],
                 "price": data['price'],
+                "image": data.get('image'),
                 "createdAt": datetime.datetime.utcnow(),
                 "updatedAt": datetime.datetime.utcnow(),
                 "modifiedAt": None
             }
 
-            # ++++++++++++++ Insert product data in db ++++++++++++++
             productsCol.insert_one(productAdd)
             return Response({'message': 'Product Added'}, status=status.HTTP_200_OK)
 
-        # ++++++++++++++ except conditions for error handling ++++++++++++++
         except Exception as e:
             print('Exception in adding product: ', e)
             return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR, data={"data": {"error_msg": str(e)}})
@@ -130,17 +120,14 @@ class View_Update_Delete_Product(APIView):
         """
 
         try:
-            # ++++++++++++++ Find all products in db ++++++++++++++
             product = productsCol.find_one({'_id': ObjectId(pk)})
 
             if product:
                 return Response({'product': normalize_product(product)}, status=status.HTTP_200_OK)
 
             else:
-                # ++++++++++++++ If product not found ++++++++++++++
                 return Response({'message': 'Product not found'}, status=status.HTTP_400_BAD_REQUEST)
 
-        # ++++++++++++++ except conditions for error handling ++++++++++++++
         except Exception as e:
             print('Exception in listing one product: ', e)
             return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR, data={"data": {"error_msg": str(e)}})
@@ -150,14 +137,11 @@ class View_Update_Delete_Product(APIView):
         Update Product View (Admin only)
         """
         try:
-            # ++++++++++++++ Check if user is admin ++++++++++++++
             if request.user.get('role') != 'admin':
                 return Response({'detail': 'Only admins can update products'}, status=status.HTTP_403_FORBIDDEN)
             
-            # ++++++++++++++ Get data from user ++++++++++++++
             data = request.data
 
-            # ++++++++++++++ Get data from user to be updated in db ++++++++++++++
             productUpdate = {
                 "name": data['name'],
                 "quantity": data['quantity'],
@@ -165,20 +149,19 @@ class View_Update_Delete_Product(APIView):
                 "updatedAt": datetime.datetime.utcnow()
             }
 
-            # ++++++++++++++ Find product in db ++++++++++++++
+            if 'image' in data:
+                productUpdate["image"] = data.get('image')
+
             findProduct = productsCol.find_one({'_id': ObjectId(pk)})
 
             if findProduct:
-                # ++++++++++++++ Update product data in db ++++++++++++++
                 productsCol.update_one({'_id': ObjectId(pk)}, {
                                        '$set': productUpdate})
                 return Response({'message': 'Product Updated'}, status=status.HTTP_200_OK)
 
             else:
-                # ++++++++++++++ If product not found ++++++++++++++
                 return Response({'message': 'Product not found'}, status=status.HTTP_400_BAD_REQUEST)
 
-        # ++++++++++++++ except conditions for error handling ++++++++++++++
         except Exception as e:
             print('Exception in updating product: ', e)
             return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR, data={"data": {"error_msg": str(e)}})
@@ -188,23 +171,18 @@ class View_Update_Delete_Product(APIView):
         Delete Product View (Admin only)
         """
         try:
-            # ++++++++++++++ Check if user is admin ++++++++++++++
             if request.user.get('role') != 'admin':
                 return Response({'detail': 'Only admins can delete products'}, status=status.HTTP_403_FORBIDDEN)
             
-            # ++++++++++++++ Find product in db ++++++++++++++
             findProduct = productsCol.find_one({'_id': ObjectId(pk)})
 
             if findProduct:
-                # ++++++++++++++ Delete product data in db ++++++++++++++
                 productsCol.delete_one({"_id": ObjectId(pk)})
                 return Response({'message': 'Product deleted'}, status=status.HTTP_200_OK)
 
             else:
-                # ++++++++++++++ If product not found ++++++++++++++
                 return Response({'message': 'Product not found'}, status=status.HTTP_400_BAD_REQUEST)
 
-        # ++++++++++++++ except conditions for error handling ++++++++++++++
         except Exception as e:
             print('Exception in deleting product: ', e)
             return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR, data={"data": {"error_msg": str(e)}})

@@ -2,7 +2,6 @@ from rest_framework import permissions
 from mongo_auth.methods import login_status
 
 
-# Permission required for certain views
 class AuthenticatedOnly(permissions.BasePermission):
 
     def has_permission(self, request, view):
@@ -18,7 +17,6 @@ class AuthenticatedOnly(permissions.BasePermission):
             return False
 
 
-# Permission for Admin only
 class AdminOnly(permissions.BasePermission):
 
     def has_permission(self, request, view):
